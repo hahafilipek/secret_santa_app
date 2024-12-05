@@ -104,12 +104,13 @@ def generate_pairings(participants):
         participant["paired_to"] = pairings[i]
 
 # Use the function in the pairing step
-if st.button("Generate Pairings"):
+if st.button("Generate Pairings", key="generate_pairings"):
     generate_pairings(st.session_state.participants)
     st.success("Pairings have been generated!")
     st.write("Here are the pairings (for debugging purposes):")
     for participant in st.session_state.participants:
         st.write(f'{participant["name"]} → {participant["paired_to"]}')
+
 
 # Step 3: Send Emails
 if st.session_state.participants and st.button("Send Emails"):
