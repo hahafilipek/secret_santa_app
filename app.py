@@ -3,10 +3,26 @@ import random
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 from random import shuffle
+import json
+import os
 
-# Initialize session state to store participant details persistently
-if "participants" not in st.session_state:
-    st.session_state.participants = []
+# File to store participant details
+DATA_FILE = "participants.json"
+
+# Function to load participants from a JSON file
+def load_participants():
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, "r") as file:
+            return json.load(file)
+    return []
+
+# Function to save participants to a JSON file
+def save_participants(participants):
+    with open(DATA_FILE, "w") as file:
+        json.dump(participants, file)
+
+# Load participants at the start of the app
+participants = load_participants()
 
 # Set your SendGrid API key
 SENDGRID_API_KEY = "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"
@@ -65,8 +81,8 @@ if st.button("Submit Your Details"):
         # Generate a random number for pairing
         participant_id = random.randint(1000, 9999)
 
-        # Save participant details
-        st.session_state.participants.append({
+        # Add new participant to the list
+        participants.append({
             "id": participant_id,
             "name": name,
             "gift_preference": gift_preference,
@@ -74,47 +90,38 @@ if st.button("Submit Your Details"):
             "paired_to": None  # Will be filled during pairing
         })
 
+        # Save participants to the file
+        save_participants(participants)
+
         st.success(f"Thank you, {name}! Your pairing ID is {participant_id}.")
-        st.info("wait for others to join, do not perform pairings")
+        st.info("Wait for others to join before performing pairings.")
 
 # Step 2: Perform Pairing (Admin Functionality)
-if st.session_state.participants:
+if participants:
     st.header("Step 2: Perform Pairing")
 
-    if st.button("Generate Pairings"):
-        participants = st.session_state.participants
+    # Generate pairings ensuring no one is paired with themselves
+    def generate_pairings(participants):
         names = [p["name"] for p in participants]
-        random.shuffle(names)
+        shuffle(names)  # Randomize the names
 
-def generate_pairings(participants):
-    names = [p["name"] for p in participants]
-    shuffle(names)  # Randomize the names
+        # Create pairings by shifting the list
+        pairings = names[1:] + names[:1]
 
-    # Create pairings by shifting the list
-    pairings = names[1:] + names[:1]
+        # Assign pairings back to participants
+        for i, participant in enumerate(participants):
+            participant["paired_to"] = pairings[i]
 
-    # Assign pairings back to participants
-    for i, participant in enumerate(participants):
-        participant["paired_to"] = pairings[i]
-
-
-    # Assign pairings back to participants
-    for i, participant in enumerate(participants):
-        participant["paired_to"] = pairings[i]
-
-# Use the function in the pairing step
-if st.button("Generate Pairings", key="generate_pairings"):
-    generate_pairings(st.session_state.participants)
-    st.success("Pairings have been generated!")
-    st.write("Here are the pairings (for debugging purposes):")
-    for participant in st.session_state.participants:
-        st.write(f'{participant["name"]} → {participant["paired_to"]}')
-
+    if st.button("Generate Pairings", key="generate_pairings"):
+        generate_pairings(participants)
+        save_participants(participants)  # Save updated pairings
+        st.success("Pairings have been generated!")
+        st.write("Here are the pairings (for debugging purposes):")
+        for participant in participants:
+            st.write(f'{participant["name"]} → {participant["paired_to"]}')
 
 # Step 3: Send Emails
-if st.session_state.participants and st.button("Send Emails"):
-    participants = st.session_state.participants
-
+if participants and st.button("Send Emails"):
     for participant in participants:
         receiver_name = participant["paired_to"]
         receiver_info = next(
