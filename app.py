@@ -85,14 +85,31 @@ if st.session_state.participants:
         names = [p["name"] for p in participants]
         random.shuffle(names)
 
-        # Create circular pairings
-        for i, participant in enumerate(participants):
-            participant["paired_to"] = names[(i + 1) % len(names)]
+       # Generate pairings ensuring no one is paired with themselves
+def generate_pairings(participants):
+    names = [p["name"] for p in participants]
+    shuffle(names)  # Randomize the names
 
-        st.success("Pairings have been generated!")
-        st.write("Here are the pairings (for debugging purposes):")
-        for participant in participants:
-            st.write(f'{participant["name"]} → {participant["paired_to"]}')
+    while True:
+        # Try generating a pairing list
+        pairings = names[:]
+        shuffle(pairings)
+
+        # Check if any name is paired with itself
+        if all(name != pairing for name, pairing in zip(names, pairings)):
+            break  # Exit the loop if pairings are valid
+
+    # Assign pairings back to participants
+    for i, participant in enumerate(participants):
+        participant["paired_to"] = pairings[i]
+
+# Use the function in the pairing step
+if st.button("Generate Pairings"):
+    generate_pairings(st.session_state.participants)
+    st.success("Pairings have been generated!")
+    st.write("Here are the pairings (for debugging purposes):")
+    for participant in st.session_state.participants:
+        st.write(f'{participant["name"]} → {participant["paired_to"]}')
 
 # Step 3: Send Emails
 if st.session_state.participants and st.button("Send Emails"):
