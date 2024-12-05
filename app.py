@@ -8,12 +8,12 @@ if "participants" not in st.session_state:
     st.session_state.participants = []
 
 # Set your SendGrid API key
-SENDGRID_API_KEY = "your_sendgrid_api_key_here"
+SENDGRID_API_KEY = "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"
 
 # Function to send email using SendGrid
 def send_email_with_sendgrid(to_email, subject, body):
     message = Mail(
-        from_email="your_email@example.com",  # Your verified SendGrid sender email
+        from_email="husf00@vse.cz",  # Your verified SendGrid sender email
         to_emails=to_email,
         subject=subject,
         html_content=body,  # Use HTML for better formatting
@@ -26,12 +26,35 @@ def send_email_with_sendgrid(to_email, subject, body):
         st.error(f"Failed to send email to {to_email}. Error: {str(e)}")
 
 # Streamlit App UI
-st.title("🎅 Secret Santa - One Participant at a Time 🎁")
+
+# Add a GIF at the top
+st.markdown(
+    """
+    <div style="text-align: center;">
+        <img src="https://media1.tenor.com/m/tVrkM5XhW-EAAAAd/flick-esfand.gif" alt="Secret Santa Gif" width="400">
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+# Add a Czech flag with fires under it
+st.markdown(
+    """
+    <div style="text-align: center;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Flag_of_the_Czech_Republic.svg/2560px-Flag_of_the_Czech_Republic.svg.png" 
+        alt="Czech Flag with Fire" width="400">
+        <p style="color: red; font-size: 20px; font-weight: bold;">🔥🔥🔥</p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+st.title("🎅 Secret Santa for the best board 🎁")
 
 # Step 1: Prompt for Participant Details
 st.header("Step 1: Enter Your Details")
 name = st.text_input("What is your name?")
-gift_preference = st.text_input("What would you like to receive as a gift?")
+gift_preference = st.text_input("Give a hint what would you like to receive as a gift:)")
 email = st.text_input("What is your email address?")
 
 if st.button("Submit Your Details"):
@@ -51,7 +74,7 @@ if st.button("Submit Your Details"):
         })
 
         st.success(f"Thank you, {name}! Your pairing ID is {participant_id}.")
-        st.info("Please wait until all participants have signed up!")
+        st.info("wait for others to join, do not perform pairings")
 
 # Step 2: Perform Pairing (Admin Functionality)
 if st.session_state.participants:
