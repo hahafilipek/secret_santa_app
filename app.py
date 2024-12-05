@@ -139,3 +139,11 @@ if participants and st.button("Send Emails"):
 
         # Send email via SendGrid
         send_email_with_sendgrid(participant["email"], subject, body)
+
+if st.button("Clear All Data"):
+    if os.path.exists(DATA_FILE):
+        os.remove(DATA_FILE)  # Delete the file
+        st.session_state.participants = []  # Clear session data
+        st.success("All data has been cleared!")
+    else:
+        st.info("No data to clear.")
