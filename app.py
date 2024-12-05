@@ -2,6 +2,7 @@ import streamlit as st
 import random
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
+from random import shuffle
 
 # Initialize session state to store participant details persistently
 if "participants" not in st.session_state:
