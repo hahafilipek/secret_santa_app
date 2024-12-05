@@ -86,19 +86,17 @@ if st.session_state.participants:
         names = [p["name"] for p in participants]
         random.shuffle(names)
 
-       # Generate pairings ensuring no one is paired with themselves
 def generate_pairings(participants):
     names = [p["name"] for p in participants]
     shuffle(names)  # Randomize the names
 
-    while True:
-        # Try generating a pairing list
-        pairings = names[:]
-        shuffle(pairings)
+    # Create pairings by shifting the list
+    pairings = names[1:] + names[:1]
 
-        # Check if any name is paired with itself
-        if all(name != pairing for name, pairing in zip(names, pairings)):
-            break  # Exit the loop if pairings are valid
+    # Assign pairings back to participants
+    for i, participant in enumerate(participants):
+        participant["paired_to"] = pairings[i]
+
 
     # Assign pairings back to participants
     for i, participant in enumerate(participants):
